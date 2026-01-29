@@ -1117,9 +1117,9 @@
                 <div class="file-upload-area" id="dropZone" onclick="document.getElementById('fileInput').click()">
                     <span class="upload-icon">📂</span>
                     <p style="font-size: 1.1rem; font-weight: 600; margin-bottom: 10px;">اسحب الملفات هنا أو انقر للاختيار</p>
-                    <p style="opacity: 0.7;">يدعم ملفات TXT, JSON, HTML, CSS, JS, MD</p>
+                    <p style="opacity: 0.7;">يدعم جميع أنواع الملفات (نصية، صور، PDF، وغيرها)</p>
                 </div>
-                <input type="file" id="fileInput" multiple accept=".txt,.json,.html,.css,.js,.md,.xml,.csv" style="display:none" onchange="handleFileUpload(event)">
+                <input type="file" id="fileInput" multiple style="display:none" onchange="handleFileUpload(event)">
             </div>
 
             <div id="manualTab" style="display:none;">
@@ -1298,26 +1298,83 @@
             }
         }
 
+        /* ===== التحقق من نوع الملف (نصي أم ثنائي) ===== */
+        function isTextFile(file) {
+            const textTypes = [
+                'text/', 'application/json', 'application/javascript', 'application/xml',
+                'application/xhtml+xml', 'application/x-httpd-php', 'application/x-sh',
+                'application/x-python', 'application/sql'
+            ];
+            const textExtensions = [
+                'txt', 'json', 'html', 'htm', 'css', 'js', 'jsx', 'ts', 'tsx', 'md', 'markdown',
+                'xml', 'csv', 'yaml', 'yml', 'ini', 'cfg', 'conf', 'log', 'sql', 'sh', 'bash',
+                'py', 'php', 'rb', 'java', 'c', 'cpp', 'h', 'hpp', 'cs', 'go', 'rs', 'swift',
+                'kt', 'scala', 'r', 'pl', 'pm', 'lua', 'vim', 'gitignore', 'env', 'htaccess',
+                'bat', 'cmd', 'ps1', 'dockerfile', 'makefile', 'gradle', 'properties', 'toml'
+            ];
+            
+            const ext = file.name.split('.').pop().toLowerCase();
+            const mimeType = file.type || '';
+            
+            // التحقق من MIME type
+            if (textTypes.some(t => mimeType.startsWith(t))) return true;
+            
+            // التحقق من الامتداد
+            if (textExtensions.includes(ext)) return true;
+            
+            // ملفات بدون امتداد أو MIME type فارغ - نحاول قراءتها كنص
+            if (!ext || ext === file.name || mimeType === '') return true;
+            
+            return false;
+        }
+
         /* ===== رفع الملفات ===== */
         function handleFileUpload(event) {
             const uploadedFiles = event.target.files;
             Array.from(uploadedFiles).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    files.push({
-                        id: Date.now() + Math.random(),
-                        name: file.name,
-                        content: e.target.result,
-                        size: file.size,
-                        type: file.type || getFileType(file.name),
-                        date: new Date().toLocaleString('ar-EG')
-                    });
-                    saveToStorage();
-                    updateUI();
-                    showToast('تم رفع الملف بنجاح: ' + file.name, 'success');
-                };
-                reader.readAsText(file);
+                processFile(file);
             });
+            event.target.value = '';
+        }
+
+        /* ===== معالجة الملف ===== */
+        function processFile(file) {
+            const reader = new FileReader();
+            const isText = isTextFile(file);
+            
+            reader.onload = function(e) {
+                const fileData = {
+                    id: Date.now() + Math.random(),
+                    name: file.name,
+                    content: e.target.result,
+                    size: file.size,
+                    type: file.type || getFileType(file.name),
+                    date: new Date().toLocaleString('ar-EG'),
+                    isText: isText,
+                    isBinary: !isText
+                };
+                
+                // للملفات الثنائية، نحفظ الـ base64
+                if (!isText) {
+                    fileData.base64 = e.target.result;
+                    fileData.content = `[ملف ثنائي: ${file.name}]\nالحجم: ${formatFileSize(file.size)}\nالنوع: ${file.type || 'غير معروف'}`;
+                }
+                
+                files.push(fileData);
+                saveToStorage();
+                updateUI();
+                showToast('تم رفع الملف بنجاح: ' + file.name, 'success');
+            };
+            
+            reader.onerror = function() {
+                showToast('خطأ في قراءة الملف: ' + file.name, 'error');
+            };
+            
+            if (isText) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsDataURL(file);
+            }
         }
 
         /* ===== السحب والإفلات ===== */
@@ -1341,21 +1398,7 @@
 
         function handleDroppedFiles(droppedFiles) {
             Array.from(droppedFiles).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    files.push({
-                        id: Date.now() + Math.random(),
-                        name: file.name,
-                        content: e.target.result,
-                        size: file.size,
-                        type: file.type || getFileType(file.name),
-                        date: new Date().toLocaleString('ar-EG')
-                    });
-                    saveToStorage();
-                    updateUI();
-                    showToast('تم رفع الملف بنجاح: ' + file.name, 'success');
-                };
-                reader.readAsText(file);
+                processFile(file);
             });
         }
 
@@ -1390,27 +1433,134 @@
         function getFileType(filename) {
             const ext = filename.split('.').pop().toLowerCase();
             const types = {
+                // ملفات نصية
                 'txt': 'text/plain',
                 'json': 'application/json',
                 'html': 'text/html',
+                'htm': 'text/html',
                 'css': 'text/css',
                 'js': 'application/javascript',
+                'jsx': 'application/javascript',
+                'ts': 'application/typescript',
+                'tsx': 'application/typescript',
                 'md': 'text/markdown',
                 'xml': 'text/xml',
-                'csv': 'text/csv'
+                'csv': 'text/csv',
+                'yaml': 'text/yaml',
+                'yml': 'text/yaml',
+                'sql': 'application/sql',
+                'py': 'text/x-python',
+                'php': 'application/x-php',
+                'rb': 'text/x-ruby',
+                'java': 'text/x-java',
+                'c': 'text/x-c',
+                'cpp': 'text/x-cpp',
+                'h': 'text/x-c',
+                'cs': 'text/x-csharp',
+                'go': 'text/x-go',
+                'rs': 'text/x-rust',
+                'swift': 'text/x-swift',
+                'sh': 'text/x-shellscript',
+                'bat': 'text/x-batch',
+                'ps1': 'text/x-powershell',
+                'log': 'text/plain',
+                'ini': 'text/plain',
+                'cfg': 'text/plain',
+                'conf': 'text/plain',
+                // ملفات صور
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg',
+                'png': 'image/png',
+                'gif': 'image/gif',
+                'bmp': 'image/bmp',
+                'webp': 'image/webp',
+                'svg': 'image/svg+xml',
+                'ico': 'image/x-icon',
+                // ملفات مستندات
+                'pdf': 'application/pdf',
+                'doc': 'application/msword',
+                'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'xls': 'application/vnd.ms-excel',
+                'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'ppt': 'application/vnd.ms-powerpoint',
+                'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'odt': 'application/vnd.oasis.opendocument.text',
+                'ods': 'application/vnd.oasis.opendocument.spreadsheet',
+                'odp': 'application/vnd.oasis.opendocument.presentation',
+                // ملفات مضغوطة
+                'zip': 'application/zip',
+                'rar': 'application/x-rar-compressed',
+                '7z': 'application/x-7z-compressed',
+                'tar': 'application/x-tar',
+                'gz': 'application/gzip',
+                // ملفات صوتية
+                'mp3': 'audio/mpeg',
+                'wav': 'audio/wav',
+                'ogg': 'audio/ogg',
+                'flac': 'audio/flac',
+                'm4a': 'audio/mp4',
+                // ملفات فيديو
+                'mp4': 'video/mp4',
+                'avi': 'video/x-msvideo',
+                'mkv': 'video/x-matroska',
+                'mov': 'video/quicktime',
+                'wmv': 'video/x-ms-wmv',
+                'webm': 'video/webm',
+                // ملفات أخرى
+                'exe': 'application/x-executable',
+                'dll': 'application/x-msdownload',
+                'apk': 'application/vnd.android.package-archive',
+                'dmg': 'application/x-apple-diskimage',
+                'iso': 'application/x-iso9660-image'
             };
-            return types[ext] || 'text/plain';
+            return types[ext] || 'application/octet-stream';
         }
 
         /* ===== الحصول على أيقونة الملف ===== */
-        function getFileIcon(type) {
+        function getFileIcon(type, filename) {
+            const ext = filename ? filename.split('.').pop().toLowerCase() : '';
+            
+            // ملفات نصية وبرمجية
             if (type.includes('json')) return '📊';
             if (type.includes('html')) return '🌐';
             if (type.includes('css')) return '🎨';
-            if (type.includes('javascript')) return '⚡';
+            if (type.includes('javascript') || type.includes('typescript')) return '⚡';
             if (type.includes('markdown')) return '📝';
             if (type.includes('xml')) return '📰';
             if (type.includes('csv')) return '📈';
+            if (type.includes('python')) return '🐍';
+            if (type.includes('php')) return '🐘';
+            if (type.includes('java') && !type.includes('javascript')) return '☕';
+            if (type.includes('ruby')) return '💎';
+            if (type.includes('go')) return '🔵';
+            if (type.includes('rust')) return '🦀';
+            if (type.includes('swift')) return '🍎';
+            if (type.includes('shell') || type.includes('bash') || ext === 'sh') return '💻';
+            if (type.includes('sql')) return '🗃️';
+            
+            // صور
+            if (type.includes('image')) return '🖼️';
+            
+            // مستندات
+            if (type.includes('pdf')) return '📕';
+            if (type.includes('word') || type.includes('document') || ext === 'doc' || ext === 'docx') return '📘';
+            if (type.includes('excel') || type.includes('spreadsheet') || ext === 'xls' || ext === 'xlsx') return '📗';
+            if (type.includes('powerpoint') || type.includes('presentation') || ext === 'ppt' || ext === 'pptx') return '📙';
+            
+            // مضغوطة
+            if (type.includes('zip') || type.includes('rar') || type.includes('7z') || type.includes('tar') || type.includes('gzip')) return '📦';
+            
+            // صوتية
+            if (type.includes('audio')) return '🎵';
+            
+            // فيديو
+            if (type.includes('video')) return '🎬';
+            
+            // تنفيذية
+            if (type.includes('executable') || type.includes('msdownload') || ext === 'exe' || ext === 'dll') return '⚙️';
+            if (ext === 'apk') return '📱';
+            if (ext === 'dmg' || ext === 'iso') return '💿';
+            
             return '📄';
         }
 
@@ -1436,12 +1586,30 @@
                 return;
             }
 
-            container.innerHTML = files.map((file, index) => `
-                <div class="file-item" style="animation-delay: ${index * 0.1}s">
+            container.innerHTML = files.map((file, index) => {
+                const icon = getFileIcon(file.type, file.name);
+                const isBinary = file.isBinary || false;
+                const fileTypeLabel = isBinary ? '<span style="color: #f59e0b; font-size: 0.75rem; margin-right: 8px;">ثنائي</span>' : '<span style="color: #10b981; font-size: 0.75rem; margin-right: 8px;">نصي</span>';
+                
+                let contentPreview = '';
+                if (isBinary && file.type && file.type.startsWith('image/')) {
+                    contentPreview = `<div class="file-content-viewer" id="content-${index}"><img src="${file.base64}" style="max-width: 100%; max-height: 250px; border-radius: 8px;"></div>`;
+                } else if (isBinary) {
+                    contentPreview = `<div class="file-content-viewer" id="content-${index}" style="text-align: center; padding: 30px;">
+                        <span style="font-size: 3rem;">${icon}</span>
+                        <p style="margin-top: 15px; opacity: 0.7;">ملف ثنائي - ${file.type || 'نوع غير معروف'}</p>
+                        <p style="opacity: 0.5; font-size: 0.9rem;">الحجم: ${formatFileSize(file.size)}</p>
+                    </div>`;
+                } else {
+                    contentPreview = `<div class="file-content-viewer" id="content-${index}">${escapeHtml(file.content.substring(0, 5000))}${file.content.length > 5000 ? '\n\n... [محتوى مقتطع]' : ''}</div>`;
+                }
+                
+                return `
+                <div class="file-item" style="animation-delay: ${index * 0.05}s">
                     <div class="file-info" onclick="toggleFileContent(${index})">
-                        <div class="file-icon">${getFileIcon(file.type)}</div>
+                        <div class="file-icon">${icon}</div>
                         <div>
-                            <div class="file-name">${file.name}</div>
+                            <div class="file-name">${file.name} ${fileTypeLabel}</div>
                             <div class="file-meta">${formatFileSize(file.size)} • ${file.date}</div>
                         </div>
                     </div>
@@ -1451,8 +1619,8 @@
                         <button class="btn btn-danger btn-icon" onclick="deleteFile(${index})" title="حذف">🗑️</button>
                     </div>
                 </div>
-                <div class="file-content-viewer" id="content-${index}">${escapeHtml(file.content)}</div>
-            `).join('');
+                ${contentPreview}
+            `}).join('');
         }
 
         /* ===== تبديل عرض محتوى الملف ===== */
@@ -1466,7 +1634,40 @@
             currentFileIndex = index;
             const file = files[index];
             document.getElementById('modalTitle').textContent = file.name;
-            document.getElementById('modalContent').textContent = file.content;
+            
+            const modalContent = document.getElementById('modalContent');
+            const editBtn = document.querySelector('#contentModal .btn-primary');
+            
+            if (file.isBinary) {
+                if (file.type && file.type.startsWith('image/')) {
+                    modalContent.innerHTML = `<div style="text-align: center;"><img src="${file.base64}" style="max-width: 100%; max-height: 60vh; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);"></div>`;
+                } else if (file.type && file.type.startsWith('audio/')) {
+                    modalContent.innerHTML = `<div style="text-align: center; padding: 30px;">
+                        <span style="font-size: 4rem;">🎵</span>
+                        <p style="margin: 20px 0;">ملف صوتي</p>
+                        <audio controls src="${file.base64}" style="width: 100%;"></audio>
+                    </div>`;
+                } else if (file.type && file.type.startsWith('video/')) {
+                    modalContent.innerHTML = `<div style="text-align: center;">
+                        <video controls src="${file.base64}" style="max-width: 100%; max-height: 60vh; border-radius: 12px;"></video>
+                    </div>`;
+                } else {
+                    const icon = getFileIcon(file.type, file.name);
+                    modalContent.innerHTML = `<div style="text-align: center; padding: 40px;">
+                        <span style="font-size: 5rem;">${icon}</span>
+                        <h3 style="margin: 20px 0;">ملف ثنائي</h3>
+                        <p style="opacity: 0.7; margin-bottom: 10px;">النوع: ${file.type || 'غير معروف'}</p>
+                        <p style="opacity: 0.7;">الحجم: ${formatFileSize(file.size)}</p>
+                        <p style="margin-top: 20px; opacity: 0.5; font-size: 0.9rem;">هذا الملف غير قابل للعرض كنص</p>
+                    </div>`;
+                }
+                // إخفاء زر التعديل للملفات الثنائية
+                editBtn.style.display = 'none';
+            } else {
+                modalContent.textContent = file.content;
+                editBtn.style.display = 'flex';
+            }
+            
             document.getElementById('contentModal').classList.add('show');
         }
 
@@ -1512,14 +1713,29 @@
         /* ===== تحميل ملف ===== */
         function downloadFile(index) {
             const file = files[index];
-            const blob = new Blob([file.content], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
+            let url;
+            
+            if (file.isBinary && file.base64) {
+                // للملفات الثنائية، نستخدم الـ base64 مباشرة
+                url = file.base64;
+            } else {
+                // للملفات النصية
+                const blob = new Blob([file.content], { type: file.type || 'text/plain;charset=utf-8' });
+                url = URL.createObjectURL(blob);
+            }
+            
             const a = document.createElement('a');
             a.href = url;
             a.download = file.name;
+            document.body.appendChild(a);
             a.click();
-            URL.revokeObjectURL(url);
-            showToast('جاري تحميل الملف...', 'info');
+            document.body.removeChild(a);
+            
+            if (!file.isBinary) {
+                URL.revokeObjectURL(url);
+            }
+            
+            showToast('جاري تحميل الملف: ' + file.name, 'info');
         }
 
         /* ===== حذف ملف ===== */
@@ -1589,6 +1805,34 @@
                 files.forEach((file, fileIndex) => {
                     progressBar.style.width = ((fileIndex + 1) / files.length * 100) + '%';
                     
+                    // تخطي الملفات الثنائية للبحث في المحتوى (نبحث فقط في الاسم)
+                    if (file.isBinary) {
+                        let searchQuery = query;
+                        let flags = 'gi';
+                        if (!caseSensitive) flags = 'g';
+                        
+                        if (!useRegex) {
+                            searchQuery = escapeRegex(query);
+                        }
+                        
+                        try {
+                            const regex = new RegExp(searchQuery, caseSensitive ? 'g' : 'gi');
+                            const nameMatches = file.name.match(regex);
+                            
+                            if (nameMatches && nameMatches.length > 0) {
+                                totalMatches += nameMatches.length;
+                                results.push({
+                                    file: file,
+                                    fileIndex: fileIndex,
+                                    matchCount: nameMatches.length,
+                                    previews: ['<em style="opacity: 0.7;">تم العثور على تطابق في اسم الملف (ملف ثنائي)</em>'],
+                                    isBinaryMatch: true
+                                });
+                            }
+                        } catch (e) {}
+                        return;
+                    }
+                    
                     let searchQuery = query;
                     let content = file.content;
                     let flags = 'g';
@@ -1651,11 +1895,17 @@
                 if (results.length === 0) {
                     resultsContainer.innerHTML = '<div style="text-align: center; padding: 40px; opacity: 0.7;"><span style="font-size: 3rem;">🔍</span><p style="margin-top: 15px; font-size: 1.1rem;">لم يتم العثور على نتائج</p></div>';
                 } else {
-                    resultsContainer.innerHTML = results.map((result, idx) => `
-                        <div class="result-item" style="animation-delay: ${idx * 0.1}s" onclick="viewFile(${result.fileIndex})">
+                    resultsContainer.innerHTML = results.map((result, idx) => {
+                        const icon = getFileIcon(result.file.type, result.file.name);
+                        const isBinary = result.file.isBinary;
+                        const typeLabel = isBinary ? '<span style="background: #f59e0b; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-right: 8px;">ثنائي</span>' : '';
+                        
+                        return `
+                        <div class="result-item" style="animation-delay: ${idx * 0.05}s; ${isBinary ? 'border-right-color: #f59e0b;' : ''}" onclick="viewFile(${result.fileIndex})">
                             <div class="result-file-name">
-                                <span>${getFileIcon(result.file.type)}</span>
+                                <span>${icon}</span>
                                 ${result.file.name}
+                                ${typeLabel}
                                 <span style="font-size: 0.85rem; opacity: 0.7; margin-right: auto;">${formatFileSize(result.file.size)}</span>
                             </div>
                             ${result.previews.length > 0 ? result.previews.map(p => `
@@ -1665,7 +1915,7 @@
                                 📌 عدد التطابقات: <strong>${result.matchCount}</strong>
                             </div>
                         </div>
-                    `).join('');
+                    `}).join('');
                 }
 
                 showToast(`تم العثور على ${totalMatches} نتيجة في ${results.length} ملف`, 'success');
@@ -1689,8 +1939,15 @@
 
             let totalReplacements = 0;
             let filesAffected = 0;
+            let skippedBinary = 0;
 
             files.forEach(file => {
+                // تخطي الملفات الثنائية
+                if (file.isBinary) {
+                    skippedBinary++;
+                    return;
+                }
+                
                 const regex = new RegExp(escapeRegex(findText), 'g');
                 const matches = file.content.match(regex);
                 
@@ -1706,13 +1963,33 @@
                 replaceCount += totalReplacements;
                 saveToStorage();
                 updateUI();
-                showToast(`تم استبدال ${totalReplacements} تطابق في ${filesAffected} ملف`, 'success');
+                let msg = `تم استبدال ${totalReplacements} تطابق في ${filesAffected} ملف`;
+                if (skippedBinary > 0) {
+                    msg += ` (تم تخطي ${skippedBinary} ملف ثنائي)`;
+                }
+                showToast(msg, 'success');
                 
                 document.getElementById('findText').value = '';
                 document.getElementById('replaceText').value = '';
             } else {
-                showToast('لم يتم العثور على النص المراد استبداله', 'error');
+                showToast('لم يتم العثور على النص المراد استبداله في الملفات النصية', 'error');
             }
+        }
+
+        /* ===== تحميل جميع الملفات المعدلة ===== */
+        function downloadAllFiles() {
+            if (files.length === 0) {
+                showToast('لا توجد ملفات للتحميل', 'error');
+                return;
+            }
+            
+            files.forEach((file, index) => {
+                setTimeout(() => {
+                    downloadFile(index);
+                }, index * 300);
+            });
+            
+            showToast(`جاري تحميل ${files.length} ملف...`, 'info');
         }
 
         /* ===== تحميل نتائج البحث ===== */
