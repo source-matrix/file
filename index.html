@@ -2,9 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MaTrX - عالم الإبداع</title>
-    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@400;700;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الموديل الخفي - تصوير الملابس بالذكاء الاصطناعي</title>
     <style>
         * {
             margin: 0;
@@ -12,1087 +11,678 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow-x: hidden;
-            font-family: 'Cairo', sans-serif;
-        }
-
-        /* شاشة الدخول */
-        .intro-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 50%, #0a0a0a 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
-        }
-
-        .intro-screen.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .intro-content {
-            text-align: center;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .intro-logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4rem;
-            font-weight: 900;
-            background: linear-gradient(45deg, #ff0000, #ff4444, #ffffff, #ff4444, #ff0000);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientMove 3s ease infinite;
-            text-shadow: 0 0 30px rgba(255,0,0,0.5);
-            margin-bottom: 50px;
-        }
-
-        @keyframes gradientMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .enter-btn {
-            padding: 20px 60px;
-            font-size: 1.5rem;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            color: #fff;
-            background: linear-gradient(135deg, rgba(255,0,0,0.8), rgba(180,0,0,0.9));
-            border: 3px solid #ff4444;
-            border-radius: 15px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 30px rgba(255,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.1);
-        }
-
-        .enter-btn::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: rotate(45deg);
-            animation: btnShine 2s infinite;
-        }
-
-        @keyframes btnShine {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-        }
-
-        .enter-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 50px rgba(255,0,0,0.8), inset 0 0 30px rgba(255,255,255,0.2);
-            border-color: #fff;
-        }
-
-        /* الموقع الرئيسي */
-        .main-site {
-            display: none;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .main-site.active {
-            display: block;
-        }
-
-        /* خلفية الفيديو */
-        .video-background {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
             width: 100%;
-            height: 100%;
-            z-index: -1;
             overflow: hidden;
         }
 
-        .video-background video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .video-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.15);
-            pointer-events: none;
-        }
-
-        /* زر الصوت */
-        .sound-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.6);
-            border: 2px solid rgba(255,215,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .sound-toggle:hover {
-            background: rgba(255,0,0,0.3);
-            border-color: #ffd700;
-            transform: scale(1.1);
-        }
-
-        .sound-toggle svg {
-            width: 24px;
-            height: 24px;
-            fill: #ffd700;
-        }
-
-        /* قسم الغلاف */
-        .cover-section {
-            width: 100%;
-            position: relative;
-        }
-
-        .cover-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-bottom: 4px solid rgba(255,215,0,0.5);
-        }
-
-        @media (max-width: 768px) {
-            .cover-image {
-                height: 200px;
-            }
-        }
-
-        /* قسم البروفايل */
-        .profile-section {
-            display: flex;
-            align-items: flex-start;
-            padding: 0 30px;
-            margin-top: -60px;
-            position: relative;
-            z-index: 10;
-            flex-wrap: wrap;
-        }
-
-        .profile-image-container {
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 5px solid #000;
-            object-fit: cover;
-            box-shadow: 0 0 30px rgba(255,0,0,0.5);
-            transition: transform 0.3s ease;
-        }
-
-        .profile-image:hover {
-            transform: scale(1.05);
-        }
-
-        .welcome-message {
-            margin-right: 30px;
-            margin-top: 70px;
-            max-width: 600px;
-        }
-
-        .welcome-message h2 {
-            font-size: 1.8rem;
-            color: #fff;
-            margin-bottom: 15px;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-            text-shadow: 0 0 20px rgba(255,0,0,0.5);
-        }
-
-        .welcome-message p {
-            font-size: 1.1rem;
-            color: rgba(255,255,255,0.9);
-            line-height: 1.8;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-        }
-
-        .welcome-message p:nth-child(2) { animation-delay: 0.3s; }
-        .welcome-message p:nth-child(3) { animation-delay: 0.6s; }
-        .welcome-message p:nth-child(4) { animation-delay: 0.9s; }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .profile-section {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                padding: 0 15px;
-            }
-
-            .profile-image {
-                width: 120px;
-                height: 120px;
-            }
-
-            .welcome-message {
-                margin-right: 0;
-                margin-top: 20px;
-            }
-
-            .welcome-message h2 {
-                font-size: 1.4rem;
-            }
-
-            .welcome-message p {
-                font-size: 1rem;
-            }
-        }
-
-        /* قسم الهيدر */
-        .hero-section {
-            padding: 40px 20px;
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
             text-align: center;
         }
 
-        .logo-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 30px;
-            margin-bottom: 20px;
-        }
-
-        .main-logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 4rem;
-            font-weight: 900;
-            background: linear-gradient(45deg, #ff0000, #ff4444, #ffffff, #ff4444, #ff0000);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientMove 3s ease infinite, pulse3D 2s ease-in-out infinite;
-            filter: drop-shadow(0 0 20px rgba(255,0,0,0.7));
-            position: relative;
-        }
-
-        @keyframes pulse3D {
-            0%, 100% { transform: perspective(500px) rotateX(0deg); }
-            50% { transform: perspective(500px) rotateX(5deg); }
-        }
-
-        /* أيقونات التواصل */
-        .social-icons {
-            display: flex;
-            gap: 20px;
-        }
-
-        .social-icon {
-            width: 60px;
-            height: 60px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-decoration: none;
-            position: relative;
-            animation: iconFloat 3s ease-in-out infinite;
-            transform-style: preserve-3d;
-        }
-
-        .social-icon:nth-child(2) {
-            animation-delay: 0.5s;
-        }
-
-        @keyframes iconFloat {
-            0%, 100% { transform: translateY(0) rotateY(0deg); }
-            25% { transform: translateY(-10px) rotateY(10deg); }
-            50% { transform: translateY(0) rotateY(0deg); }
-            75% { transform: translateY(-5px) rotateY(-10deg); }
-        }
-
-        .social-icon svg {
-            width: 50px;
-            height: 50px;
-            transition: all 0.3s ease;
-            filter: drop-shadow(0 0 15px rgba(255,215,0,0.6));
-        }
-
-        .social-icon:hover svg {
-            transform: scale(1.2) rotateY(180deg);
-            filter: drop-shadow(0 0 25px rgba(255,215,0,1));
+            padding: 40px;
         }
 
         @media (max-width: 768px) {
-            .main-logo {
-                font-size: 2.5rem;
-            }
-
-            .logo-container {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .social-icons {
-                justify-content: center;
-            }
-
-            .social-icon {
-                width: 50px;
-                height: 50px;
-            }
-
-            .social-icon svg {
-                width: 40px;
-                height: 40px;
+            .content {
+                grid-template-columns: 1fr;
             }
         }
 
-        /* مشغل الصوت */
-        .music-player {
-            max-width: 400px;
-            margin: 30px auto;
-            padding: 15px 20px;
-            background: rgba(0,0,0,0.7);
-            border-radius: 15px;
-            border: 2px solid rgba(255,215,0,0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .player-info {
+        .section {
             display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .album-art-container {
-            position: relative;
-            width: 60px;
-            height: 60px;
-            flex-shrink: 0;
-        }
-
-        .album-art {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid rgba(255,215,0,0.5);
-        }
-
-        .album-art.playing {
-            animation: spin 8s linear infinite;
-        }
-
-        .album-art.paused {
-            animation-play-state: paused;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .song-details {
-            flex: 1;
-        }
-
-        .song-title {
-            color: #fff;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .song-artist {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.85rem;
-        }
-
-        .progress-container {
-            margin-bottom: 15px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 3px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff0000, #ffd700);
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        .time-display {
-            display: flex;
-            justify-content: space-between;
-            color: rgba(255,255,255,0.7);
-            font-size: 0.75rem;
-            margin-top: 5px;
-        }
-
-        .player-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
             gap: 20px;
-        }
-
-        .control-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: transparent;
-            border: 2px solid rgba(255,215,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .control-btn:hover {
-            background: rgba(255,0,0,0.3);
-            border-color: #ffd700;
-            transform: scale(1.1);
-        }
-
-        .control-btn svg {
-            width: 20px;
-            height: 20px;
-            fill: #ffd700;
-        }
-
-        .play-btn {
-            width: 55px;
-            height: 55px;
-            background: linear-gradient(135deg, rgba(255,0,0,0.6), rgba(180,0,0,0.8));
-        }
-
-        .play-btn svg {
-            width: 24px;
-            height: 24px;
-        }
-
-        /* قسم البوتات */
-        .bots-section {
-            padding: 40px 20px;
         }
 
         .section-title {
-            text-align: center;
-            font-size: 2rem;
-            color: #fff;
-            margin-bottom: 40px;
-            text-shadow: 0 0 20px rgba(255,0,0,0.5);
-            font-weight: 700;
+            font-size: 1.5em;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
         }
 
-        .bots-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .bot-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 20px;
-            background: transparent;
-            border: 2px solid rgba(255,215,0,0.3);
+        .upload-area {
+            border: 3px dashed #667eea;
             border-radius: 15px;
-            text-decoration: none;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
             transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+            transform: translateY(-5px);
+        }
+
+        .upload-area.active {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #333;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .preview-container {
             position: relative;
-            overflow: hidden;
-        }
-
-        .bot-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .bot-card:hover::before {
-            left: 100%;
-        }
-
-        .bot-card:hover {
-            border-color: #ffd700;
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 10px 30px rgba(255,0,0,0.3), 0 0 20px rgba(255,215,0,0.2);
-        }
-
-        .bot-icon {
-            width: 50px;
-            height: 50px;
+            height: 400px;
+            background: #f5f5f5;
+            border-radius: 15px;
+            overflow: hidden;
             display: flex;
-            justify-content: center;
             align-items: center;
-            flex-shrink: 0;
-            animation: iconBounce 2s ease-in-out infinite;
+            justify-content: center;
         }
 
-        @keyframes iconBounce {
-            0%, 100% { transform: translateY(0) rotateZ(0deg); }
-            50% { transform: translateY(-5px) rotateZ(5deg); }
+        .preview-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
-        .bot-icon svg {
+        .no-image {
+            color: #ccc;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+
+        select, input[type="range"] {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        select:focus, input[type="range"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .range-value {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-right: 10px;
+        }
+
+        .model-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .model-option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: white;
+        }
+
+        .model-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .model-option.selected {
+            border-color: #667eea;
+            background: #e8ebff;
+            font-weight: 600;
+        }
+
+        .model-emoji {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .model-name {
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-info {
+            font-size: 0.95em;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
             width: 40px;
             height: 40px;
-            filter: drop-shadow(0 0 10px rgba(255,215,0,0.5));
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
 
-        .bot-info {
-            flex: 1;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .bot-name {
-            color: #fff;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 5px;
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #28a745;
         }
 
-        .bot-desc {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.85rem;
+        .feature-list {
+            list-style: none;
+            margin-top: 15px;
         }
 
-        .bot-telegram {
-            width: 35px;
-            height: 35px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            animation: telegramPulse 2s ease-in-out infinite;
+        .feature-list li {
+            padding: 10px 0;
+            padding-right: 30px;
+            position: relative;
+            color: #555;
         }
 
-        @keyframes telegramPulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-
-        .bot-telegram svg {
-            width: 25px;
-            height: 25px;
-            fill: url(#goldGradient);
-            filter: drop-shadow(0 0 8px rgba(255,215,0,0.6));
-        }
-
-        /* التذييل */
-        .footer {
-            padding: 30px;
-            text-align: center;
-            background: rgba(0,0,0,0.5);
-            border-top: 1px solid rgba(255,215,0,0.2);
-            margin-top: 40px;
-        }
-
-        .footer-text {
-            color: rgba(255,255,255,0.6);
-            font-size: 0.9rem;
-        }
-
-        /* SVG Gradients */
-        .svg-defs {
+        .feature-list li:before {
+            content: "✓";
             position: absolute;
-            width: 0;
-            height: 0;
+            right: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .footer {
+            background: #f8f9ff;
+            padding: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+            border-top: 1px solid #eee;
         }
     </style>
 </head>
 <body>
-    <!-- SVG Definitions -->
-    <svg class="svg-defs">
-        <defs>
-            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#ffd700"/>
-                <stop offset="50%" style="stop-color:#ffec8b"/>
-                <stop offset="100%" style="stop-color:#ffd700"/>
-            </linearGradient>
-            <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#ff0000"/>
-                <stop offset="50%" style="stop-color:#ff4444"/>
-                <stop offset="100%" style="stop-color:#ff0000"/>
-            </linearGradient>
-        </defs>
-    </svg>
-
-    <!-- شاشة الدخول -->
-    <div class="intro-screen" id="introScreen">
-        <div class="intro-content">
-            <div class="intro-logo">MaTrX</div>
-            <button class="enter-btn" onclick="enterSite()">الدخول للموقع</button>
-        </div>
-    </div>
-
-    <!-- الموقع الرئيسي -->
-    <div class="main-site" id="mainSite">
-        <!-- خلفية الفيديو -->
-        <div class="video-background">
-            <video id="bgVideo" autoplay loop playsinline>
-                <source src="https://i.top4top.io/m_3680xfpyt1.mp4" type="video/mp4">
-            </video>
-            <div class="video-overlay"></div>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 الموديل الخفي</h1>
+            <p>تصوير الملابس بالذكاء الاصطناعي - بدون استوديو أو موديل حقيقي</p>
         </div>
 
-        <!-- زر الصوت -->
-        <div class="sound-toggle" id="soundToggle" onclick="toggleVideoSound()">
-            <svg id="soundOn" viewBox="0 0 24 24">
-                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-            </svg>
-            <svg id="soundOff" style="display:none" viewBox="0 0 24 24">
-                <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
-            </svg>
-        </div>
+        <div class="content">
+            <!-- القسم الأول: رفع الصورة -->
+            <div class="section">
+                <h2 class="section-title">📸 رفع صورة الملابس</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">اضغط أو اسحب الصورة هنا</div>
+                    <div class="upload-hint">صيغ مدعومة: JPG, PNG, WebP</div>
+                    <input type="file" id="fileInput" accept="image/*">
+                </div>
 
-        <!-- صورة الغلاف -->
-        <div class="cover-section">
-            <img src="https://j.top4top.io/p_3680x8bfk1.jpg" alt="Cover" class="cover-image">
-        </div>
+                <div class="preview-container">
+                    <div id="preview" class="no-image">لم يتم رفع صورة بعد</div>
+                </div>
 
-        <!-- قسم البروفايل -->
-        <div class="profile-section">
-            <div class="profile-image-container">
-                <img src="https://a.top4top.io/p_3680d7agf1.jpg" alt="Profile" class="profile-image">
+                <button class="btn-secondary" id="clearBtn" disabled>حذف الصورة</button>
             </div>
-            <div class="welcome-message">
-                <h2>مرحبا بك في عالم ماتركس</h2>
-                <p>هنا تبدأ الأفكار، وتتحول التقنيات إلى واقع.</p>
-                <p>ماتركس ليس موقعا عاديا، بل مساحة لصناعة الإبداع والتميز</p>
-            </div>
-        </div>
 
-        <!-- قسم الهيدر -->
-        <div class="hero-section">
-            <div class="logo-container">
-                <h1 class="main-logo">MaTrX</h1>
-                <div class="social-icons">
-                    <!-- تيليجرام -->
-                    <a href="https://t.me/ssfe2" target="_blank" class="social-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                        </svg>
-                    </a>
-                    <!-- انستغرام -->
-                    <a href="https://instagram.com/the.sszs" target="_blank" class="social-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                        </svg>
-                    </a>
+            <!-- القسم الثاني: الخيارات والإعدادات -->
+            <div class="section">
+                <h2 class="section-title">⚙️ الإعدادات والخيارات</h2>
+
+                <!-- اختيار الموديل -->
+                <div class="control-group">
+                    <label class="control-label">اختر شكل الموديل:</label>
+                    <div class="model-grid">
+                        <div class="model-option selected" data-model="female-1">
+                            <div class="model-emoji">👩</div>
+                            <div class="model-name">امرأة 1</div>
+                        </div>
+                        <div class="model-option" data-model="female-2">
+                            <div class="model-emoji">👩‍🦱</div>
+                            <div class="model-name">امرأة 2</div>
+                        </div>
+                        <div class="model-option" data-model="male-1">
+                            <div class="model-emoji">👨</div>
+                            <div class="model-name">رجل 1</div>
+                        </div>
+                        <div class="model-option" data-model="male-2">
+                            <div class="model-emoji">👨‍🦱</div>
+                            <div class="model-name">رجل 2</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- اختيار الوضعية -->
+                <div class="control-group">
+                    <label class="control-label">اختر وضعية الموديل:</label>
+                    <select id="poseSelect">
+                        <option value="standing">واقف (عادي)</option>
+                        <option value="walking">يمشي</option>
+                        <option value="sitting">جالس</option>
+                        <option value="side">من الجانب</option>
+                        <option value="back">من الخلف</option>
+                    </select>
+                </div>
+
+                <!-- اختيار الخلفية -->
+                <div class="control-group">
+                    <label class="control-label">اختر الخلفية:</label>
+                    <select id="backgroundSelect">
+                        <option value="white">بيضاء (استوديو)</option>
+                        <option value="gray">رمادية (محترفة)</option>
+                        <option value="outdoor">خارجية (طبيعية)</option>
+                        <option value="urban">حضرية (شارع)</option>
+                        <option value="blur">ضبابية (تركيز)</option>
+                    </select>
+                </div>
+
+                <!-- إضاءة -->
+                <div class="control-group">
+                    <label class="control-label">
+                        مستوى الإضاءة:
+                        <span class="range-value" id="lightValue">50%</span>
+                    </label>
+                    <input type="range" id="lightRange" min="0" max="100" value="50">
+                </div>
+
+                <!-- جودة الصورة -->
+                <div class="control-group">
+                    <label class="control-label">جودة الإخراج:</label>
+                    <select id="qualitySelect">
+                        <option value="standard">عادية (سريعة)</option>
+                        <option value="high" selected>عالية (موصى به)</option>
+                        <option value="ultra">فائقة (احترافية)</option>
+                    </select>
+                </div>
+
+                <!-- أزرار التحكم -->
+                <div class="button-group">
+                    <button class="btn-primary" id="generateBtn" disabled>🚀 توليد الصورة</button>
+                    <button class="btn-secondary" id="downloadBtn" disabled>⬇️ تحميل</button>
+                </div>
+
+                <!-- حالة التحميل -->
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <div>جاري معالجة الصورة...</div>
+                </div>
+
+                <!-- رسالة النجاح -->
+                <div class="success-message" id="successMessage">
+                    ✓ تم توليد الصورة بنجاح! يمكنك الآن تحميلها أو إنشاء نسخة جديدة.
+                </div>
+
+                <!-- معلومات النتيجة -->
+                <div class="result-section" id="resultSection" style="display: none;">
+                    <div class="result-title">📊 معلومات الصورة المُنتجة:</div>
+                    <div class="result-info">
+                        <ul class="feature-list">
+                            <li>الموديل: <strong id="resultModel">-</strong></li>
+                            <li>الوضعية: <strong id="resultPose">-</strong></li>
+                            <li>الخلفية: <strong id="resultBackground">-</strong></li>
+                            <li>الجودة: <strong id="resultQuality">-</strong></li>
+                            <li>وقت المعالجة: <strong id="resultTime">-</strong></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- مشغل الصوت -->
-        <div class="music-player" id="musicPlayer">
-            <div class="player-info">
-                <div class="album-art-container">
-                    <img src="https://b.top4top.io/p_3680guuby1.jpg" alt="Album Art" class="album-art" id="albumArt">
-                </div>
-                <div class="song-details">
-                    <div class="song-title">My Song</div>
-                    <div class="song-artist">MaTrX</div>
-                </div>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar" id="progressBar" onclick="seekAudio(event)">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="time-display">
-                    <span id="currentTime">0:00</span>
-                    <span id="duration">0:00</span>
-                </div>
-            </div>
-            <div class="player-controls">
-                <button class="control-btn" onclick="skipBackward()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>
-                    </svg>
-                </button>
-                <button class="control-btn play-btn" id="playBtn" onclick="togglePlay()">
-                    <svg id="playIcon" viewBox="0 0 24 24">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                    <svg id="pauseIcon" style="display:none" viewBox="0 0 24 24">
-                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                    </svg>
-                </button>
-                <button class="control-btn" onclick="skipForward()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <audio id="audioPlayer" src="https://i.top4top.io/m_3682gpoem1.m4a" preload="metadata"></audio>
-
-        <!-- قسم البوتات -->
-        <div class="bots-section">
-            <h2 class="section-title">قائمة البوتات</h2>
-            <div class="bots-grid">
-                <!-- بوت ميوزك -->
-                <a href="https://t.me/Eawubot" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت ميوزك</div>
-                        <div class="bot-desc">تحميل وتشغيل الموسيقى</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-
-                <!-- بوت الكتب -->
-                <a href="https://t.me/rzkdbot" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت الكتب</div>
-                        <div class="bot-desc">قراءة وتحميل الكتب</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-
-                <!-- بوت الحماية -->
-                <a href="https://t.me/Mu7wbot" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت الحماية</div>
-                        <div class="bot-desc">حذف المحتوى المخالف</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-
-                <!-- بوت تعديل الأغاني -->
-                <a href="https://t.me/Sonegbot" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت تعديل الأغاني</div>
-                        <div class="bot-desc">تغيير اسم وصورة الأغنية</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-
-                <!-- بوت حفظ المنشورات -->
-                <a href="https://t.me/JoDsubot" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت حفظ المنشورات</div>
-                        <div class="bot-desc">حفظ المنشورات المقيدة</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-
-                <!-- بوت إدارة المشرفين -->
-                <a href="https://t.me/vxbbbot" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت إدارة المشرفين</div>
-                        <div class="bot-desc">إدارة صلاحيات المشرفين</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-
-                <!-- بوت التحميل -->
-                <a href="https://t.me/tahmei_bot" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت التحميل الشامل</div>
-                        <div class="bot-desc">تحميل من جميع المواقع</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-
-                <!-- بوت التعرف على الأغاني -->
-                <a href="https://t.me/Szkdbot" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت التعرف على الأغاني</div>
-                        <div class="bot-desc">معرفة اسم أي أغنية</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-
-                <!-- بوت مصنع البوتات -->
-                <a href="https://t.me/XSSFE2BOT" target="_blank" class="bot-card">
-                    <div class="bot-icon">
-                        <svg viewBox="0 0 24 24" fill="url(#goldGradient)">
-                            <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
-                        </svg>
-                    </div>
-                    <div class="bot-info">
-                        <div class="bot-name">بوت مصنع البوتات</div>
-                        <div class="bot-desc">إنشاء بوتات مخصصة</div>
-                    </div>
-                    <div class="bot-telegram">
-                        <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- التذييل -->
         <div class="footer">
-            <p class="footer-text">MaTrX - عالم الإبداع والتقنية</p>
+            <p>🎨 أداة الموديل الخفي - تحويل صور الملابس إلى صور احترافية بالذكاء الاصطناعي | جميع الحقوق محفوظة © 2026</p>
         </div>
     </div>
 
     <script>
-        // متغيرات
-        const bgVideo = document.getElementById('bgVideo');
-        const audioPlayer = document.getElementById('audioPlayer');
-        const albumArt = document.getElementById('albumArt');
-        const progressFill = document.getElementById('progressFill');
-        const progressBar = document.getElementById('progressBar');
-        const currentTimeEl = document.getElementById('currentTime');
-        const durationEl = document.getElementById('duration');
-        const playIcon = document.getElementById('playIcon');
-        const pauseIcon = document.getElementById('pauseIcon');
-        const soundOn = document.getElementById('soundOn');
-        const soundOff = document.getElementById('soundOff');
+        // متغيرات عامة
+        let selectedModel = 'female-1';
+        let uploadedImage = null;
+        let generatedImage = null;
 
-        let isPlaying = false;
-        let videoMuted = false;
-        let wasVideoMuted = false;
+        // عناصر DOM
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const clearBtn = document.getElementById('clearBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loading = document.getElementById('loading');
+        const successMessage = document.getElementById('successMessage');
+        const resultSection = document.getElementById('resultSection');
+        const poseSelect = document.getElementById('poseSelect');
+        const backgroundSelect = document.getElementById('backgroundSelect');
+        const lightRange = document.getElementById('lightRange');
+        const lightValue = document.getElementById('lightValue');
+        const qualitySelect = document.getElementById('qualitySelect');
 
-        // دخول الموقع
-        function enterSite() {
-            document.getElementById('introScreen').classList.add('hidden');
-            document.getElementById('mainSite').classList.add('active');
-            bgVideo.muted = false;
-            bgVideo.play().catch(e => {
-                bgVideo.muted = true;
-                bgVideo.play();
+        // معالجة رفع الملف
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('active');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('active');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('active');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        function handleFileUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('الرجاء اختيار صورة صحيحة');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                uploadedImage = e.target.result;
+                preview.innerHTML = `<img src="${uploadedImage}" class="preview-image" alt="صورة الملابس">`;
+                clearBtn.disabled = false;
+                generateBtn.disabled = false;
+                successMessage.style.display = 'none';
+                resultSection.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        clearBtn.addEventListener('click', () => {
+            uploadedImage = null;
+            preview.innerHTML = '<div class="no-image">لم يتم رفع صورة بعد</div>';
+            clearBtn.disabled = true;
+            generateBtn.disabled = true;
+            downloadBtn.disabled = true;
+            successMessage.style.display = 'none';
+            resultSection.style.display = 'none';
+        });
+
+        // اختيار الموديل
+        document.querySelectorAll('.model-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.model-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedModel = option.dataset.model;
             });
-        }
+        });
 
-        // تبديل صوت الفيديو
-        function toggleVideoSound() {
-            videoMuted = !videoMuted;
-            bgVideo.muted = videoMuted;
-            soundOn.style.display = videoMuted ? 'none' : 'block';
-            soundOff.style.display = videoMuted ? 'block' : 'none';
-        }
+        // تحديث قيمة الإضاءة
+        lightRange.addEventListener('input', (e) => {
+            lightValue.textContent = e.target.value + '%';
+        });
 
-        // تشغيل/إيقاف الأغنية
-        function togglePlay() {
-            if (isPlaying) {
-                audioPlayer.pause();
-                albumArt.classList.remove('playing');
-                albumArt.classList.add('paused');
-                playIcon.style.display = 'block';
-                pauseIcon.style.display = 'none';
-                // إعادة صوت الفيديو
-                if (wasVideoMuted === false) {
-                    bgVideo.muted = false;
-                    soundOn.style.display = 'block';
-                    soundOff.style.display = 'none';
-                }
-            } else {
-                audioPlayer.play();
-                albumArt.classList.remove('paused');
-                albumArt.classList.add('playing');
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'block';
-                // كتم صوت الفيديو
-                wasVideoMuted = bgVideo.muted;
-                bgVideo.muted = true;
-                soundOn.style.display = 'none';
-                soundOff.style.display = 'block';
+        // توليد الصورة
+        generateBtn.addEventListener('click', generateImage);
+
+        function generateImage() {
+            if (!uploadedImage) {
+                alert('الرجاء رفع صورة أولاً');
+                return;
             }
-            isPlaying = !isPlaying;
+
+            loading.style.display = 'block';
+            successMessage.style.display = 'none';
+            resultSection.style.display = 'none';
+            generateBtn.disabled = true;
+
+            // محاكاة معالجة الصورة
+            const startTime = Date.now();
+            
+            setTimeout(() => {
+                // إنشاء canvas للمعالجة
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // تطبيق تأثيرات
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // تطبيق الإضاءة
+                    const lightLevel = lightRange.value / 100;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${(lightLevel - 0.5) * 0.3})`;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // حفظ الصورة
+                    generatedImage = canvas.toDataURL('image/jpeg', 0.95);
+                    
+                    // عرض النتيجة
+                    loading.style.display = 'none';
+                    successMessage.style.display = 'block';
+                    downloadBtn.disabled = false;
+                    generateBtn.disabled = false;
+                    
+                    // عرض معلومات النتيجة
+                    const processingTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                    document.getElementById('resultModel').textContent = getModelName(selectedModel);
+                    document.getElementById('resultPose').textContent = getPoseName(poseSelect.value);
+                    document.getElementById('resultBackground').textContent = getBackgroundName(backgroundSelect.value);
+                    document.getElementById('resultQuality').textContent = getQualityName(qualitySelect.value);
+                    document.getElementById('resultTime').textContent = processingTime + ' ثانية';
+                    resultSection.style.display = 'block';
+                };
+                
+                img.src = uploadedImage;
+            }, 2000);
         }
 
-        // تقديم 10 ثواني
-        function skipForward() {
-            audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 10, audioPlayer.duration);
+        // تحميل الصورة
+        downloadBtn.addEventListener('click', () => {
+            if (!generatedImage) return;
+            
+            const link = document.createElement('a');
+            link.href = generatedImage;
+            link.download = `hidden-model-${Date.now()}.jpg`;
+            link.click();
+        });
+
+        // دوال مساعدة
+        function getModelName(model) {
+            const names = {
+                'female-1': 'امرأة 1',
+                'female-2': 'امرأة 2',
+                'male-1': 'رجل 1',
+                'male-2': 'رجل 2'
+            };
+            return names[model] || model;
         }
 
-        // ترجيع 10 ثواني
-        function skipBackward() {
-            audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 10, 0);
+        function getPoseName(pose) {
+            const names = {
+                'standing': 'واقف (عادي)',
+                'walking': 'يمشي',
+                'sitting': 'جالس',
+                'side': 'من الجانب',
+                'back': 'من الخلف'
+            };
+            return names[pose] || pose;
         }
 
-        // تحديث شريط التقدم
-        audioPlayer.addEventListener('timeupdate', () => {
-            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-            progressFill.style.width = progress + '%';
-            currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-        });
-
-        // تحميل المدة
-        audioPlayer.addEventListener('loadedmetadata', () => {
-            durationEl.textContent = formatTime(audioPlayer.duration);
-        });
-
-        // انتهاء الأغنية
-        audioPlayer.addEventListener('ended', () => {
-            isPlaying = false;
-            albumArt.classList.remove('playing');
-            playIcon.style.display = 'block';
-            pauseIcon.style.display = 'none';
-            progressFill.style.width = '0%';
-            // إعادة صوت الفيديو
-            if (wasVideoMuted === false) {
-                bgVideo.muted = false;
-                soundOn.style.display = 'block';
-                soundOff.style.display = 'none';
-            }
-        });
-
-        // السحب في شريط التقدم
-        function seekAudio(e) {
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (e.clientX - rect.left) / rect.width;
-            audioPlayer.currentTime = percent * audioPlayer.duration;
+        function getBackgroundName(bg) {
+            const names = {
+                'white': 'بيضاء (استوديو)',
+                'gray': 'رمادية (محترفة)',
+                'outdoor': 'خارجية (طبيعية)',
+                'urban': 'حضرية (شارع)',
+                'blur': 'ضبابية (تركيز)'
+            };
+            return names[bg] || bg;
         }
 
-        // دعم السحب المستمر
-        let isDragging = false;
-        progressBar.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            seekAudio(e);
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                seekAudio(e);
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-        });
-
-        // دعم اللمس للجوال
-        progressBar.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            const rect = progressBar.getBoundingClientRect();
-            const percent = (touch.clientX - rect.left) / rect.width;
-            audioPlayer.currentTime = percent * audioPlayer.duration;
-        });
-
-        progressBar.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            const rect = progressBar.getBoundingClientRect();
-            const percent = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
-            audioPlayer.currentTime = percent * audioPlayer.duration;
-        });
-
-        // تنسيق الوقت
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return '0:00';
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return mins + ':' + (secs < 10 ? '0' : '') + secs;
+        function getQualityName(quality) {
+            const names = {
+                'standard': 'عادية',
+                'high': 'عالية',
+                'ultra': 'فائقة'
+            };
+            return names[quality] || quality;
         }
     </script>
 </body>
-</html> 
+</html>
